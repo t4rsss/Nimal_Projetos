@@ -12,7 +12,7 @@ from tkinter import filedialog
 from tkcalendar import DateEntry
 
 conexao = mysql.connector.connect(
-    host="",
+    host="192.168.0.101",
     user="seu_usuario",
     password="sua_senha",
     database="nimalnotas"
@@ -22,7 +22,6 @@ cursor = conexao.cursor()
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
-
 
 def mostrar_visao_geral():
     global tree, frame2
@@ -37,13 +36,14 @@ def mostrar_visao_geral():
     visao_frame = ctk.CTkFrame(frame2, fg_color="gray")
     visao_frame.place(relwidth=1, relheight=1)
 
+
     def carregar_dados(valor=None,coluna=None):
         for row in tree.get_children():
             tree.delete(row)
 
         # Conecta ao banco de dados
         conexao = mysql.connector.connect(
-            host="",
+            host="192.168.0.101",
             user="seu_usuario",
             password="sua_senha",
             database="nimalnotas"
@@ -55,7 +55,7 @@ def mostrar_visao_geral():
 
         # SQL básico com filtro opcional
         sql_query = """
-            SELECT id, servico, cliente, visita, data_inicio, data_fim, status, participantes, horas, assunto  
+            SELECT id, servico, cliente, data_inicio, data_fim, status, participantes, horas, assunto  
             FROM projetos
         """
         if valor:  # Se um valor for passado, filtra pela data
@@ -71,8 +71,10 @@ def mostrar_visao_geral():
             tree.insert("", tk.END, values=linha, tags=(tag,))
 
         # Fechar o cursor e a conexão
+        conexao.commit()
         cursor.close()
         conexao.close()
+
 
     def aplicar_filtro():
         coluna_selecionada = combobox_colunas.get()  # Obtém o texto exibido na ComboBox
@@ -86,7 +88,7 @@ def mostrar_visao_geral():
                 tree.delete(row)
 
             conexao = mysql.connector.connect(
-                host="",
+                host="192.168.0.101",
                 user="seu_usuario",
                 password="sua_senha",
                 database="nimalnotas"
@@ -94,7 +96,7 @@ def mostrar_visao_geral():
             cursor = conexao.cursor()
 
             # Adicionando aspas ao redor dos nomes das colunas para evitar erro de sintaxe SQL
-            sql_query = f"SELECT id, servico, cliente, visita, data_inicio, data_fim, status, participantes, horas, assunto FROM projetos WHERE `{coluna_real}` LIKE %s"
+            sql_query = f"SELECT id, servico, cliente, data_inicio, data_fim, status, participantes, horas, assunto FROM projetos WHERE `{coluna_real}` LIKE %s"
             cursor.execute(sql_query, (valor_filtrado,))
             resultados = cursor.fetchall()
 
@@ -130,7 +132,7 @@ def mostrar_visao_geral():
 
     # Criando a tabela com Treeview
     colunas = (
-        "Id do Projeto", "Serviço", "Cliente", "Visita", "Data Início", "Data Fim", "Status", "Participantes", "Horas",
+        "ID do Projeto", "Serviço", "Cliente","Data Início", "Data Fim", "Status", "Participantes", "Horas",
         "Assunto")
 
     # Criando o Treeview
@@ -172,7 +174,7 @@ def mostrar_visao_geral():
 
         # Labels e entradas para os novos dados
         campos = [
-            "Serviço", "Cliente", "Visita", "Data de Início", "Data de Término", "Status", "Participantes",
+            "Serviço", "Cliente", "Data de Início", "Data de Término", "Status", "Participantes",
             "Horas", "Assunto"
         ]
 
@@ -186,10 +188,14 @@ def mostrar_visao_geral():
 
             if campo == "Serviço":
                 # Combobox para "Serviço"
-                servicos_opcoes = ["Call", "Visita", "Suporte Interno", "Suporte Externo"]
+                servicos_opcoes = ["Call","Visita","Suporte Interno", "Suporte Externo"]
                 entrada = ctk.CTkComboBox(frame_linha, values=servicos_opcoes, font=("Arial", 12))
-                entrada.set(servicos_opcoes[0])  # Define o valor padrão como "Call"
-
+                entrada.set(servicos_opcoes[0])
+            elif campo == "Status":
+                # Combobox para participantes
+                status_opcoes = ["Concluído","Em aberto","Cancelado"]
+                entrada = ctk.CTkComboBox(frame_linha, values=status_opcoes, font=("Arial", 12))
+                entrada.set(status_opcoes[1])
             elif campo == "Participantes":
                 # Combobox para participantes
                 participantes_opcoes = ["Ana", "Dowglas", "Jennifer", "Rui", "Tarso", "Giovanna"]
@@ -236,7 +242,7 @@ def mostrar_visao_geral():
 
             # Conexão ao banco de dados
             conexao = mysql.connector.connect(
-                host="",
+                host="192.168.0.101",
                 user="seu_usuario",
                 password="sua_senha",
                 database="nimalnotas"
@@ -246,9 +252,9 @@ def mostrar_visao_geral():
             try:
                 # SQL para inserir os dados no banco de dados (sem o campo "ID")
                 sql_insert = """
-                    INSERT INTO projetos (servico, cliente, visita, data_inicio, data_fim, 
+                    INSERT INTO projetos (servico, cliente, data_inicio, data_fim, 
                                           status, participantes, horas, assunto)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(sql_insert, tuple(novos_valores))
                 conexao.commit()
@@ -259,6 +265,7 @@ def mostrar_visao_geral():
                 cursor.close()
                 conexao.close()
                 carregar_dados()
+                atualizar_contagem()
 
             janela_adicao.destroy()
 
@@ -282,14 +289,13 @@ def mostrar_visao_geral():
         # Recupera os valores da linha selecionada
         valores_atuais = tree.item(item_selecionado, "values")
 
-        # Cria uma nova janela para edição
         janela_edicao = ctk.CTkToplevel()
         janela_edicao.title("Editar Dados")
         janela_edicao.geometry("700x700")
 
         # Labels e entradas para edição dos valores
         campos = [
-            "ID","Serviço", "Cliente", "Visita", "Data de Início", "Data de Término", "Status", "Participantes",
+            "ID", "Serviço", "Cliente", "Data de Início", "Data de Término", "Status", "Participantes",
             "Horas", "Assunto"
         ]
 
@@ -297,24 +303,61 @@ def mostrar_visao_geral():
         for i, campo in enumerate(campos):
             frame_linha = ctk.CTkFrame(janela_edicao)
             frame_linha.pack(fill=tk.X, padx=10, pady=5)
-
-            ctk.CTkLabel(frame_linha, text=campo.capitalize(), font=("Arial", 12), width=15, anchor="w").pack(
+            ctk.CTkLabel(frame_linha, text=campo.capitalize(), font=("Arial", 15), width=15, anchor="w").pack(
                 side=tk.LEFT, padx=5)
-            entrada = ctk.CTkEntry(frame_linha, font=("Arial", 12))
-            entrada.pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=5)
-            entrada.insert(0, valores_atuais[i])  # Preenche com o valor atual
-            entradas[campo] = entrada
+
+            if campo == "ID":
+
+                ctk.CTkLabel(frame_linha, text=valores_atuais[i], font=("Arial", 20), width=5).place(x=30,y=2)
+                entradas[campo] = valores_atuais[i]  # Armazena o ID como texto estático
+            elif campo == "Serviço":
+                # Combobox para "Serviço"
+                servicos_opcoes = ["Call", "Visita", "Suporte Interno", "Suporte Externo"]
+                entrada = ctk.CTkComboBox(frame_linha, values=servicos_opcoes, font=("Arial", 12))
+                entrada.set(valores_atuais[i])
+            elif campo == "Status":
+                # Combobox para status
+                status_opcoes = ["Concluído", "Em aberto", "Cancelado"]
+                entrada = ctk.CTkComboBox(frame_linha, values=status_opcoes, font=("Arial", 12))
+                entrada.set(valores_atuais[i])
+            elif campo == "Participantes":
+                # Combobox para participantes
+                participantes_opcoes = ["Ana", "Dowglas", "Jennifer", "Rui", "Tarso", "Giovanna"]
+                entrada = ctk.CTkComboBox(frame_linha, values=participantes_opcoes, font=("Arial", 12))
+                entrada.set(valores_atuais[i])
+            elif campo == "Horas":
+                # Entrada de horas
+                entrada = ctk.CTkEntry(frame_linha, font=("Arial", 12))
+                entrada.insert(0, valores_atuais[i])
+            elif campo == "Data de Início" or campo == "Data de Término":
+                # Usando o DateEntry do tkcalendar com estilo customizado
+                entrada = DateEntry(frame_linha, width=18, font=("Arial", 12), date_pattern="dd/mm/yyyy")
+                entrada.set_date(valores_atuais[i])
+            else:
+                # Entrada padrão para os outros campos
+                entrada = ctk.CTkEntry(frame_linha, font=("Arial", 12))
+                entrada.insert(0, valores_atuais[i])
+
+            if campo != "ID":
+                entrada.pack(side=tk.RIGHT, fill=tk.X, expand=True, padx=5)
+                entradas[campo] = entrada
 
         # Função para salvar as edições
         def confirmar_edicoes():
-            novos_valores = [entradas[campo].get().strip() for campo in campos]
+            novos_valores = []
+
+            for campo in campos:
+                if campo == "ID":
+                    novos_valores.append(entradas[campo])  # ID permanece inalterado
+                else:
+                    novos_valores.append(entradas[campo].get().strip())
 
             # Atualiza os valores na Treeview
             tree.item(item_selecionado, values=novos_valores)
 
             # Atualiza o banco de dados
             conexao = mysql.connector.connect(
-                host="",
+                host="192.168.0.101",
                 user="seu_usuario",
                 password="sua_senha",
                 database="nimalnotas"
@@ -324,12 +367,12 @@ def mostrar_visao_geral():
             try:
                 sql_update = """
                     UPDATE projetos
-                    SET id = %s, servico = %s, cliente = %s, visita = %s, data_inicio = %s, data_fim = %s, 
+                    SET servico = %s, cliente = %s, data_inicio = %s, data_fim = %s, 
                         status = %s, participantes = %s, horas = %s, assunto = %s
                     WHERE id = %s
                 """
-                cursor.execute(sql_update,
-                               (*novos_valores, valores_atuais[1]))  # Usa o orçamento como identificador único
+                # Note que o ID é passado no final como referência
+                cursor.execute(sql_update, (*novos_valores[1:], novos_valores[0]))
                 conexao.commit()
                 messagebox.showinfo("Sucesso", "Dados atualizados com sucesso!")
             except Exception as e:
@@ -338,6 +381,7 @@ def mostrar_visao_geral():
                 cursor.close()
                 conexao.close()
 
+            atualizar_contagem()
             janela_edicao.destroy()
 
         # Botão para confirmar as alterações
@@ -362,7 +406,7 @@ def mostrar_visao_geral():
         if resposta:
             try:
                 conexao = mysql.connector.connect(
-                    host="",
+                    host="192.168.0.101",
                     user="seu_usuario",
                     password="sua_senha",
                     database="nimalnotas"
@@ -379,13 +423,15 @@ def mostrar_visao_geral():
 
                 # Recarregar a visão geral após a remoção
                 carregar_dados()
+                atualizar_contagem()
+
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao remover dados: {e}")
 
     def contar_elementos():
         # Conexão com o banco de dados
         conexao = mysql.connector.connect(
-            host="",  # Substitua pelo IP do seu banco de dados
+            host="192.168.0.101",  # Substitua pelo IP do seu banco de dados
             user="seu_usuario",  # Substitua pelo seu usuário do banco
             password="sua_senha",  # Substitua pela sua senha
             database="nimalnotas"  # Nome do banco de dados
@@ -400,14 +446,14 @@ def mostrar_visao_geral():
         # Fechando a conexão
         cursor.close()
         conexao.close()
-        carregar_dados()
+
 
         return resultado
 
     def contar_concluidos():
         # Conexão com o banco de dados
         conexao = mysql.connector.connect(
-            host="",  # Substitua pelo IP do seu banco de dados
+            host="192.168.0.101",  # Substitua pelo IP do seu banco de dados
             user="seu_usuario",  # Substitua pelo seu usuário do banco
             password="sua_senha",  # Substitua pela sua senha
             database="nimalnotas"  # Nome do banco de dados
@@ -422,14 +468,14 @@ def mostrar_visao_geral():
         # Fechando a conexão
         cursor.close()
         conexao.close()
-        carregar_dados()
+
 
         return resultado
 
     def contar_em_aberto():
         # Conexão com o banco de dados
         conexao = mysql.connector.connect(
-            host="",  # Substitua pelo IP do seu banco de dados
+            host="192.168.0.101",  # Substitua pelo IP do seu banco de dados
             user="seu_usuario",  # Substitua pelo seu usuário do banco
             password="sua_senha",  # Substitua pela sua senha
             database="nimalnotas"  # Nome do banco de dados
@@ -444,11 +490,41 @@ def mostrar_visao_geral():
         # Fechando a conexão
         cursor.close()
         conexao.close()
-        carregar_dados()
+
 
         return resultado
 
+    def atualizar_contagem():
+        try:
+            conexao = mysql.connector.connect(
+                host="192.168.0.101",
+                user="seu_usuario",
+                password="sua_senha",
+                database="nimalnotas"
+            )
+            cursor = conexao.cursor()
 
+            cursor.execute("SELECT COUNT(*) FROM projetos WHERE status = 'Concluído'")
+            total_concluidos = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM projetos WHERE status = 'Em Aberto'")
+            total_em_aberto = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM projetos;")
+            total_elementos = cursor.fetchone()[0]
+
+
+            label1.configure(text=f"Total: {total_elementos}")
+            label2.configure(text=f"Concluídos: {total_concluidos}")
+            label3.configure(text=f"Em Aberto: {total_em_aberto}")
+
+        except mysql.connector.Error as e:
+            print(f"Erro ao atualizar contagem: {e}")
+        finally:
+            if cursor:
+                cursor.close()
+            if conexao:
+                conexao.close()
 
     logo_img_data = Image.open("nimall.png")
     logo_img = CTkImage(dark_image=logo_img_data, light_image=logo_img_data, size=(130,130))
@@ -517,7 +593,6 @@ def mostrar_visao_geral():
         "Id": "id",
         "Serviço": "servico",
         "Cliente": "cliente",
-        "Visita": "visita",
         "Data de Início": "data_inicio",
         "Data de Término": "data_fim",
         "Status": "status",
@@ -539,13 +614,10 @@ def mostrar_visao_geral():
     )
     combobox_colunas.place(x=470, rely=0.3)
     combobox_colunas.set("Selecione uma opção")
-
-
 def get_screen_size():
     screen_width = janela.winfo_screenwidth()
     screen_height = janela.winfo_screenheight()
     return screen_width, screen_height
-
 
 janela = ctk.CTk()
 screen_width, screen_height = get_screen_size()
