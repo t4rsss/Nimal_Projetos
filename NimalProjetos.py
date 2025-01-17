@@ -12,7 +12,7 @@ from tkinter import filedialog
 from tkcalendar import DateEntry
 
 conexao = mysql.connector.connect(
-    host="192.168.0.101",
+    host="",
     user="seu_usuario",
     password="sua_senha",
     database="nimalnotas"
@@ -43,7 +43,7 @@ def mostrar_visao_geral():
 
         # Conecta ao banco de dados
         conexao = mysql.connector.connect(
-            host="192.168.0.101",
+            host="",
             user="seu_usuario",
             password="sua_senha",
             database="nimalnotas"
@@ -86,7 +86,7 @@ def mostrar_visao_geral():
                 tree.delete(row)
 
             conexao = mysql.connector.connect(
-                host="192.168.0.101",
+                host="",
                 user="seu_usuario",
                 password="sua_senha",
                 database="nimalnotas"
@@ -236,7 +236,7 @@ def mostrar_visao_geral():
 
             # Conexão ao banco de dados
             conexao = mysql.connector.connect(
-                host="192.168.0.101",
+                host="",
                 user="seu_usuario",
                 password="sua_senha",
                 database="nimalnotas"
@@ -314,7 +314,7 @@ def mostrar_visao_geral():
 
             # Atualiza o banco de dados
             conexao = mysql.connector.connect(
-                host="192.168.0.101",
+                host="",
                 user="seu_usuario",
                 password="sua_senha",
                 database="nimalnotas"
@@ -362,7 +362,7 @@ def mostrar_visao_geral():
         if resposta:
             try:
                 conexao = mysql.connector.connect(
-                    host="192.168.0.101",
+                    host="",
                     user="seu_usuario",
                     password="sua_senha",
                     database="nimalnotas"
@@ -385,7 +385,7 @@ def mostrar_visao_geral():
     def contar_elementos():
         # Conexão com o banco de dados
         conexao = mysql.connector.connect(
-            host="192.168.0.101",  # Substitua pelo IP do seu banco de dados
+            host="",  # Substitua pelo IP do seu banco de dados
             user="seu_usuario",  # Substitua pelo seu usuário do banco
             password="sua_senha",  # Substitua pela sua senha
             database="nimalnotas"  # Nome do banco de dados
@@ -407,7 +407,7 @@ def mostrar_visao_geral():
     def contar_concluidos():
         # Conexão com o banco de dados
         conexao = mysql.connector.connect(
-            host="192.168.0.101",  # Substitua pelo IP do seu banco de dados
+            host="",  # Substitua pelo IP do seu banco de dados
             user="seu_usuario",  # Substitua pelo seu usuário do banco
             password="sua_senha",  # Substitua pela sua senha
             database="nimalnotas"  # Nome do banco de dados
@@ -429,7 +429,7 @@ def mostrar_visao_geral():
     def contar_em_aberto():
         # Conexão com o banco de dados
         conexao = mysql.connector.connect(
-            host="192.168.0.101",  # Substitua pelo IP do seu banco de dados
+            host="",  # Substitua pelo IP do seu banco de dados
             user="seu_usuario",  # Substitua pelo seu usuário do banco
             password="sua_senha",  # Substitua pela sua senha
             database="nimalnotas"  # Nome do banco de dados
