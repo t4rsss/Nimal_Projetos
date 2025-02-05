@@ -1,9 +1,36 @@
+import os
+import sys
 import tkinter as tk
 from PIL import Image, ImageTk
-import time
-import tkinter as tk
-from PIL import Image, ImageTk
-import time
+def get_caminho_imagem(nome_imagem):
+    if getattr(sys, 'frozen', False):  # Verifica se está rodando como executável
+        caminho_imagem = os.path.join(sys._MEIPASS, 'imagens', nome_imagem)  # Diretório temporário do PyInstaller
+    else:
+        caminho_imagem = os.path.join(os.path.dirname(__file__), 'imagens', nome_imagem)  # Caminho normal durante o desenvolvimento
+    return caminho_imagem
+def get_caminho_recurso(nome_arquivo):
+    if getattr(sys, 'frozen', False):  # Verifica se está rodando como executável
+        caminho_recurso = os.path.join(sys._MEIPASS, 'imagens', nome_arquivo)  # Caminho para recursos no executável
+    else:
+        caminho_recurso = os.path.join(os.path.dirname(__file__), 'imagens', nome_arquivo)  # Caminho para recursos no ambiente de desenvolvimento
+    return caminho_recurso
+
+def carregar_imagens():
+    imagens = {}
+    # Lista de imagens que você precisa carregar
+    arquivos_imagens = [
+        'barra.gif', 'icons8-editar-50.png', 'icons8-apagar-para-sempre-24.png',
+        'icons8-adicionar-50.png', 'icons8-lista-de-arquivo-de-peças-30.png',
+        'icons8-pesquisar-64.png', 'icons8-lista-64.png', 'logistics_icon.png',
+        'delivered_icon.png', 'shipping_icon.png', 'nimall.png'
+    ]
+
+    # Carregar as imagens
+    for arquivo in arquivos_imagens:
+        caminho_imagem = get_caminho_imagem(arquivo)
+        imagens[arquivo] = Image.open(caminho_imagem)
+
+    return imagens
 def splash_screen():
     global splash, gif, label
 
@@ -11,8 +38,7 @@ def splash_screen():
     splash = tk.Tk()
     splash.geometry("300x70")
     splash.title("Carregando...")
-    splash.configure(bg="#d9d9d9")
-    splash.overrideredirect(True)
+    splash.overrideredirect(True)  # Remove a borda da janela
 
     # Centralizar na tela
     screen_width = splash.winfo_screenwidth()
@@ -21,9 +47,10 @@ def splash_screen():
     y_position = (screen_height - 70) // 2
     splash.geometry(f"+{x_position}+{y_position}")
 
+
     # Adicionar um Label de carregamento (GIF)
-    gif_path = "barra.gif"  # Certifique-se de que o caminho do GIF está correto
-    gif = Image.open(gif_path)
+    gif_path = get_caminho_recurso("barra.gif")  # Usando o caminho dinâmico
+    gif = Image.open(gif_path)  # Abre o GIF
 
     # Criar um Label para exibir o GIF
     label = tk.Label(splash, bg="#d9d9d9")  # Fundo igual ao da splash
@@ -42,8 +69,10 @@ def splash_screen():
 
     atualizar_gif()
 
+    # Fechar a janela após 7 segundos
     splash.after(7000, splash.destroy)
     splash.mainloop()
+
 splash_screen()
 import mysql.connector
 from customtkinter import CTkImage, CTkLabel
@@ -199,7 +228,6 @@ def mostrar_visao_geral():
         def adicionar_dados():
             janela_edicao = ctk.CTkToplevel()
             janela_edicao.title("Adicionar Dados")
-            janela.iconbitmap("nimal.ico")
             janela_edicao.geometry("900x800")
             janela_edicao.resizable(width=False, height=False)
             janela_edicao.grab_set()  # Isso impede interações com a janela principal enquanto a janela de adição estiver aberta
@@ -224,9 +252,8 @@ def mostrar_visao_geral():
 
             # labels e entries
 
-            logo_img_data = Image.open("nimall.png")
-            logo_img = CTkImage(dark_image=logo_img_data, light_image=logo_img_data, size=(90, 90))
-            img = ctk.CTkLabel(master=frameC, text="", image=logo_img)
+
+            img = ctk.CTkLabel(master=frameC, text="", image=logo_img_data)
             img.place(relx=0.8, rely=0.45, anchor='center')
 
             titulo = ctk.CTkLabel(frameC, text="Adicionar Projeto", font=("Arial Black", 24), text_color="white")
@@ -374,7 +401,6 @@ def mostrar_visao_geral():
 
             janela_edicao = ctk.CTkToplevel()
             janela_edicao.title("Editar Dados")
-            janela.iconbitmap("nimal.ico")
             janela_edicao.geometry("900x800")
             janela_edicao.resizable(width=False, height=False)
             janela_edicao.grab_set()  # Isso impede interações com a janela principal enquanto a janela de adição estiver aberta
@@ -399,9 +425,7 @@ def mostrar_visao_geral():
 
             # labels e entries
 
-            logo_img_data = Image.open("nimall.png")
-            logo_img = CTkImage(dark_image=logo_img_data, light_image=logo_img_data, size=(90, 90))
-            img = ctk.CTkLabel(master=frameC, text="", image=logo_img)
+            img = ctk.CTkLabel(master=frameC, text="", image=logo_img_data)
             img.place(relx=0.8, rely=0.45, anchor='center')
 
             titulo = ctk.CTkLabel(frameC, text="Editar Projeto", font=("Arial Black", 24), text_color="white")
@@ -742,9 +766,8 @@ def mostrar_visao_geral():
             frameB = ctk.CTkFrame(frameA, fg_color="#EEEEEE", width=900, height=900, corner_radius=10)
             frameB.place(relx=0.5, rely=0.8, anchor='center')
 
-            logo_img_data = Image.open("nimall.png")
-            logo_img = CTkImage(dark_image=logo_img_data, light_image=logo_img_data, size=(90, 90))
-            img = ctk.CTkLabel(master=frameC, text="", image=logo_img)
+
+            img = ctk.CTkLabel(master=frameC, text="", image=logo_img_data)
             img.place(relx=0.8, rely=0.45, anchor='center')
 
             titulo = ctk.CTkLabel(frameC, text="Detalhes do Projeto", font=("Arial Black", 24), text_color="white")
@@ -856,21 +879,16 @@ def mostrar_visao_geral():
 
         #Imagens
 
-        logo_img_data = Image.open("nimall.png")
-        logo_img = CTkImage(dark_image=logo_img_data, light_image=logo_img_data, size=(130,130))
-        CTkLabel(master=frame1, text="", image=logo_img).pack(pady=(100, 120), anchor="center")
+        CTkLabel(master=frame1, text="", image=logo_img_data).pack(pady=(100, 120), anchor="center")
 
-        img1 = Image.open("logistics_icon.png")
-        img1 = CTkImage(dark_image=img1, light_image=img1, size=(45,45))
-        CTkLabel(master=frameA, text="", image=img1).place(x=20,rely=0.2)
 
-        img1 = Image.open("delivered_icon.png")
-        img1 = CTkImage(dark_image=img1, light_image=img1, size=(45, 45))
-        CTkLabel(master=frameB, text="", image=img1).place(x=20, rely=0.2)
+        CTkLabel(master=frameA, text="", image=imgb7).place(x=20,rely=0.2)
 
-        img1 = Image.open("shipping_icon.png")
-        img1 = CTkImage(dark_image=img1, light_image=img1, size=(45, 45))
-        CTkLabel(master=frameC, text="", image=img1).place(x=20, rely=0.2)
+
+        CTkLabel(master=frameB, text="", image=imgb8).place(x=20, rely=0.2)
+
+
+        CTkLabel(master=frameC, text="", image=imgb9).place(x=20, rely=0.2)
 
         total_elementos = contar_elementos()
         total_concluidos = contar_concluidos()
@@ -968,23 +986,30 @@ def centralizar_janela(largura, altura):
     return f"{largura}x{altura}+{pos_x}+{pos_y}"
 
 janela = ctk.CTk()
+
+
+# Definir o ícone para a janela
 screen_width, screen_height = get_screen_size()
 dimensoes = centralizar_janela(screen_width, screen_height)
 janela.geometry(dimensoes)
 janela.resizable(True, True)
-janela.title("NimalResearch")
+janela.title("Nimal Projetos")
 janela.state('zoomed')
-janela.iconbitmap("nimal.ico")
 ctk.set_appearance_mode("light")
 
-imagem_pdf = ctk.CTkImage(Image.open("pdf.png"), size=(30, 30))
-imagem_logo = ctk.CTkImage(Image.open("nimal.ico"), size=(80, 80))
-imgb1 = ctk.CTkImage(Image.open("icons8-editar-50.png"), size=(30, 30))
-imgb2 = ctk.CTkImage(Image.open("icons8-apagar-para-sempre-24.png"), size=(30, 30))
-imgb3 = ctk.CTkImage(Image.open("icons8-adicionar-50.png"), size=(30, 30))
-imgb4 = ctk.CTkImage(Image.open("icons8-lista-de-arquivo-de-peças-30.png"), size=(30, 30))
-imgb5 = ctk.CTkImage(Image.open("icons8-pesquisar-64.png"), size=(20, 20))
-imgb6 = ctk.CTkImage(Image.open("icons8-lista-64.png"), size=(30, 30))
+# Carregar as imagens no código
+logo_img_data = ctk.CTkImage(Image.open(get_caminho_recurso("nimall.png")),size=(150, 150))
+imgb1 = ctk.CTkImage(Image.open(get_caminho_recurso("icons8-editar-50.png")), size=(30, 30))
+imgb2 = ctk.CTkImage(Image.open(get_caminho_recurso("icons8-apagar-para-sempre-24.png")), size=(30, 30))
+imgb3 = ctk.CTkImage(Image.open(get_caminho_recurso("icons8-adicionar-50.png")), size=(30, 30))
+imgb4 = ctk.CTkImage(Image.open(get_caminho_recurso("icons8-lista-de-arquivo-de-peças-30.png")), size=(30, 30))
+imgb5 = ctk.CTkImage(Image.open(get_caminho_recurso("icons8-pesquisar-64.png")), size=(20, 20))
+imgb6 = ctk.CTkImage(Image.open(get_caminho_recurso("icons8-lista-64.png")), size=(30, 30))
+imgb7 = ctk.CTkImage(Image.open(get_caminho_recurso("logistics_icon.png")), size=(45, 45))
+imgb8 = ctk.CTkImage(Image.open(get_caminho_recurso("delivered_icon.png")), size=(45, 45))
+imgb9 = ctk.CTkImage(Image.open(get_caminho_recurso("shipping_icon.png")), size=(45, 45))
+
+
 
 frame1 = ctk.CTkFrame(janela, fg_color="#4682B4", width=100, height=650,corner_radius=0)
 frame1.pack(fill="y", anchor="w", side="left")
