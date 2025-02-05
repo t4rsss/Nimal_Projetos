@@ -3,12 +3,7 @@ O Nimal Research é um aplicativo desenvolvido em Python utilizando CustomTkinte
 
 #Funcionalidades
 
-.Importação de Dados do Excel: Permite importar arquivos Excel e inserir ou atualizar automaticamente os registros no banco de dados.
-
-.Gerenciamento de Pedidos: Exibição de uma tabela com todas as informações essenciais, como orçamento, cliente, itens, valor, vencimento e distribuidor.
-
-.Duplicação de Registros: Possibilidade de duplicar um pedido já existente, incrementando automaticamente o identificador.
-Edição e Exclusão de Dados: Alteração e remoção de registros diretamente na interface gráfica.
+.Gerenciamento de Projetos: Exibição de uma tabela com todas as informações essenciais, ID do Projeto, Serviço, Cliente,Data Início, Data Fim, Status, Participantes, Horas.
 
 .Exportação para Excel: Geração de arquivos Excel a partir dos dados armazenados no banco.
 
