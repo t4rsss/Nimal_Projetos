@@ -1,2 +1,2 @@
 # Nimal_Projetos
-App de gestão de dados
+Software de gestão de dados
